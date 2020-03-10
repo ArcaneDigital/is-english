@@ -1,14 +1,14 @@
-module.exports = (text, options = {}) => {
+module.exports = (text, options = { threshold: 0.001 }) => {
   if (!text) throw new Error("Text is required");
+  var threshold = options.threshold;
   let sample = text.replace(/\s+/g, "").replace(/(\s?-\s)/g, "");
-
-  const found = sample.match(/(?=[^\u0000-\u007F]+)(?=[^’“”–©])/gim) || [];
+  const found = sample.match(/[^\u0000-\u00BE’“”–©\u00D7\u00F7]+/gim) || [];
 
   const sup = indocheck(sample);
 
   const percent = (found.length + sup) / sample.length;
 
-  if (percent < 0.001) return true;
+  if (percent < threshold) return true;
 
   return false;
 };
@@ -25,7 +25,13 @@ function indocheck(sample) {
     "permisimas",
     "permisiadek",
     "permisipak",
-    "berbagi"
+    "berbagi",
+    "sommige", //start of dutch words
+    "toevoegen",
+    "uitgeschakeld",
+    "afbeelding",
+    "verschillen",
+    "Contactgegevens"
   ];
   return words.reduce((count, word) => {
     count += (sample.match(new RegExp(word, "gim")) || []).length;
